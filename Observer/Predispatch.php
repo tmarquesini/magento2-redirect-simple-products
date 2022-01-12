@@ -2,6 +2,7 @@
 
 namespace Madeiranit\RedirectSimpleProducts\Observer;
 
+use Madeiranit\RedirectSimpleProducts\Helper\Data;
 use Magento\Catalog\Api\Data\ProductInterface;
 use Magento\Catalog\Model\Product\Type;
 use Magento\Catalog\Model\ProductRepository;
@@ -47,6 +48,11 @@ class Predispatch implements ObserverInterface
     protected UrlFactory $urlFactory;
 
     /**
+     * @var Data
+     */
+    protected Data $helperData;
+
+    /**
      * @param Http $response
      * @param Configurable $productTypeConfigurable
      * @param ProductRepository $productRepository
@@ -58,13 +64,15 @@ class Predispatch implements ObserverInterface
         Configurable $productTypeConfigurable,
         ProductRepository $productRepository,
         StoreManagerInterface $storeManager,
-        UrlFactory $urlFactory
+        UrlFactory $urlFactory,
+        Data $helperData
     ) {
         $this->response = $response;
         $this->productTypeConfigurable = $productTypeConfigurable;
         $this->productRepository = $productRepository;
         $this->storeManager = $storeManager;
         $this->urlFactory = $urlFactory;
+        $this->helperData = $helperData;
     }
 
     /**
@@ -74,6 +82,10 @@ class Predispatch implements ObserverInterface
      */
     public function execute(Observer $observer)
     {
+        if (!$this->helperData->getGeneralConfig('enable')) {
+            return;
+        }
+
         $request = $observer->getEvent()->getRequest();
 
         if ($this->isNotACatalogProductViewPath($request)
