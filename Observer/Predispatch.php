@@ -58,6 +58,7 @@ class Predispatch implements ObserverInterface
      * @param ProductRepository $productRepository
      * @param StoreManagerInterface $storeManager
      * @param UrlFactory $urlFactory
+     * @param Data $helperData
      */
     public function __construct (
         Http $response,
