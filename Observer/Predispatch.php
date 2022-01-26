@@ -11,7 +11,6 @@ use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
 use Magento\Framework\App\Response\Http;
 use Magento\Framework\Exception\NoSuchEntityException;
-use Magento\Framework\UrlFactory;
 use Magento\Store\Model\StoreManagerInterface;
 
 /**
@@ -43,11 +42,6 @@ class Predispatch implements ObserverInterface
     protected StoreManagerInterface $storeManager;
 
     /**
-     * @var UrlFactory
-     */
-    protected UrlFactory $urlFactory;
-
-    /**
      * @var Data
      */
     protected Data $helperData;
@@ -57,7 +51,6 @@ class Predispatch implements ObserverInterface
      * @param Configurable $productTypeConfigurable
      * @param ProductRepository $productRepository
      * @param StoreManagerInterface $storeManager
-     * @param UrlFactory $urlFactory
      * @param Data $helperData
      */
     public function __construct (
@@ -65,14 +58,12 @@ class Predispatch implements ObserverInterface
         Configurable $productTypeConfigurable,
         ProductRepository $productRepository,
         StoreManagerInterface $storeManager,
-        UrlFactory $urlFactory,
         Data $helperData
     ) {
         $this->response = $response;
         $this->productTypeConfigurable = $productTypeConfigurable;
         $this->productRepository = $productRepository;
         $this->storeManager = $storeManager;
-        $this->urlFactory = $urlFactory;
         $this->helperData = $helperData;
     }
 
@@ -81,7 +72,7 @@ class Predispatch implements ObserverInterface
      * @return void
      * @throws NoSuchEntityException
      */
-    public function execute(Observer $observer)
+    public function execute(Observer $observer): void
     {
         if (!$this->helperData->getGeneralConfig('enable')) {
             return;
@@ -102,6 +93,7 @@ class Predispatch implements ObserverInterface
         $parentProductsIds = $this->getParentsProductsIds($currentProduct);
         $storeId = $this->storeManager->getStore()->getId();
 
+        // TODO Validate to use only first result
         foreach ($parentProductsIds as $parentId) {
             try {
                 $parentProduct = $this->productRepository->getById($parentId, false, $storeId);
